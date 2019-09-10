@@ -378,6 +378,7 @@ class NovalnetServiceProvider extends ServiceProvider
 		$order = $event->getOrder();
 		$document_type = $event->getDocType();
 		$payments = $paymentRepository->getPaymentsByOrderId($order->id);
+		$this->getLogger(__METHOD__)->error('payment1', $payments);
 		foreach ($payments as $payment)
 		{
 			$properties = $payment->properties;
@@ -397,6 +398,7 @@ class NovalnetServiceProvider extends ServiceProvider
 			}
 			}
 		}
+		    $this->getLogger(__METHOD__)->error('payment2', $invoiceDetails);
 		$paymentKey = $paymentHelper->getPaymentKeyByMop($payments[0]->mopId);
         $db_details = $paymentService->getDatabaseValues($order->id);
         
@@ -410,14 +412,17 @@ class NovalnetServiceProvider extends ServiceProvider
 					$comments .= PHP_EOL . $paymentHelper->getTranslatedText('test_order');
 				}
 				if($paymentKey == 'NOVALNET_INVOICE' && in_array($tid_status, ['91', '100'])) {
+				$this->getLogger(__METHOD__)->error('payment3', $tid_status);
 				$comments .= PHP_EOL . $paymentService->getInvoicePrepaymentComments($bank_details);
+				$this->getLogger(__METHOD__)->error('payment4', $comments);	
 				}
 			        if($paymentKey == 'NOVALNET_CASHPAYMENT') {
 				$comments .= PHP_EOL . $cashpayment_comments;	
 				}
 				$orderPdfGenerationModel = pluginApp(OrderPdfGeneration::class);
 				$orderPdfGenerationModel->advice = $paymentHelper->getTranslatedText('novalnet_details'). PHP_EOL . $comments;
-			    if ($event->getDocType() == Document::INVOICE) {
+			$this->getLogger(__METHOD__)->error('payment5', $orderPdfGenerationModel);    
+			if ($event->getDocType() == Document::INVOICE) {
 					$event->addOrderPdfGeneration($orderPdfGenerationModel); 
 			    }
 		} catch (\Exception $e) {
